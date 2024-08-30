@@ -29,7 +29,7 @@ export class PlayersController {
   }
 
   @Delete(':id')
-  deletePlayer(@Param('id') id: string) {
-    return this.playerService.deletePlayer(id);
+  removePlayer(@Param('id') id: string) {
+    return this.playerService.removePlayer(id);
   }
 }
