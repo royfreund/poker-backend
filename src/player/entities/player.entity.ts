@@ -1,5 +1,14 @@
-import { CreatePlayerDto } from '../dto/create-player.dto';
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
-export class Player extends CreatePlayerDto {
-  id: number;
+@Entity()
+@Unique(['firstName', 'lastName'])
+export class Player {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
 }

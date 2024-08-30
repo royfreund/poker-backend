@@ -1,42 +1,41 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreatePlayerDto } from './dto/create-player.dto';
 import { Player } from './entities/player.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreatePlayerDto } from './dto/create-player.dto';
+import { UpdatePlayerDto } from './dto/update-player.dto';
 
 @Injectable()
 export class PlayersService {
-  players: Player[] = [
-    { id: 0, firstName: 'Roy', lastName: 'Freund', gamesLost: 0, gamesPlayed: 1, gamesWon: 1, money: 100 },
-  ];
+  constructor(@InjectRepository(Player) private playersRepository: Repository<Player>) {}
 
-  create(createPlayerDto: CreatePlayerDto): Player {
-    const newPlayer: Player = {
-      ...createPlayerDto,
-      id: this.players[this.players.length].id + 1,
-    } as Player;
-    this.players.push(newPlayer);
-    return newPlayer;
+  async createPlayer(createPlayerDto: CreatePlayerDto): Promise<Player> {
+    const player: Player = this.playersRepository.create(createPlayerDto);
+    return await this.playersRepository.save(player);
   }
 
-  findAll(): Player[] {
-    return this.players;
+  async getPlayers(): Promise<Player[]> {
+    return await this.playersRepository.find();
   }
 
-  findOne(id: number): Player {
-    const player: Player = this.players.find((player: Player) => player.id === id);
+  async getPlayerById(id: string): Promise<Player> {
+    const player: Player = await this.playersRepository.findOneBy({ id });
+
     if (!player) {
-      throw new NotFoundException(`Player with id '${id}' was not found`);
+      throw new NotFoundException(`Player with id: ${id} was not found`);
     }
 
     return player;
   }
 
-  // update(id: number, updatePlayerDto: UpdatePlayerDto) {
-  //   return `This action updates a #${id} player`;
-  // }
+  async updatePlayer(id: string, updatePlayerDto: UpdatePlayerDto): Promise<Player> {
+    const player: Player = await this.getPlayerById(id);
+    const updatedPlayer: Player = this.playersRepository.merge(player, updatePlayerDto);
+    return this.playersRepository.save(updatedPlayer);
+  }
 
-  remove(id: number) {
-    const removePlayer: Player = this.players.find((player: Player) => player.id === id);
-    this.players = this.players.filter((player: Player) => player.id !== id);
-    return removePlayer;
+  async deletePlayer(id: string) {
+    const player: Player = await this.getPlayerById(id);
+    await this.playersRepository.remove(player);
   }
 }
