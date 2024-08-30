@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { saveEntity } from '../utils/save-entity';
 
 @Injectable()
 export class PlayersService {
@@ -11,7 +12,7 @@ export class PlayersService {
 
   async createPlayer(createPlayerDto: CreatePlayerDto): Promise<Player> {
     const player: Player = this.playersRepository.create(createPlayerDto);
-    return await this.playersRepository.save(player);
+    return saveEntity(this.playersRepository, player);
   }
 
   async getPlayers(): Promise<Player[]> {
