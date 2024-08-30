@@ -34,7 +34,7 @@ export class PlayersService {
     return this.playersRepository.save(updatedPlayer);
   }
 
-  async deletePlayer(id: string) {
+  async removePlayer(id: string) {
     const player: Player = await this.getPlayerById(id);
     await this.playersRepository.remove(player);
   }
