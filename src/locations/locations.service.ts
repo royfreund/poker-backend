@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Location } from './entities/location.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class LocationsService {
-  create(createLocationDto: CreateLocationDto) {
-    return 'This action adds a new location';
+  constructor(@InjectRepository(Location) private locationRepository: Repository<Location>) {}
+
+  async createLocation(createLocationDto: CreateLocationDto): Promise<Location> {
+    const location: Location = this.locationRepository.create(createLocationDto);
+    return await this.locationRepository.save(location);
   }
 
-  findAll() {
-    return `This action returns all locations`;
+  async getLocations(): Promise<Location[]> {
+    return await this.locationRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} location`;
+  async getLocationById(id: string): Promise<Location> {
+    const location: Location = await this.locationRepository.findOneBy({ id });
+
+    if (!location) {
+      throw new NotFoundException(`Location with id: ${id} was not found`);
+    }
+
+    return location;
   }
 
-  update(id: number, updateLocationDto: UpdateLocationDto) {
-    return `This action updates a #${id} location`;
+  async updateLocation(id: string, updateLocationDto: UpdateLocationDto): Promise<Location> {
+    const location: Location = await this.getLocationById(id);
+    const updatedLocation: Location = this.locationRepository.merge(location, updateLocationDto);
+    return await this.locationRepository.save(updatedLocation);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} location`;
+  async removeLocation(id: string) {
+    const location: Location = await this.getLocationById(id);
+    return await this.locationRepository.remove(location);
   }
 }
