@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Player } from './entities/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { saveEntity } from '../utils/save-entity';
+import { findOneOrThrow } from '../utils/find-one-or-throw';
 
 @Injectable()
 export class PlayersService {
@@ -11,7 +13,7 @@ export class PlayersService {
 
   async createPlayer(createPlayerDto: CreatePlayerDto): Promise<Player> {
     const player: Player = this.playersRepository.create(createPlayerDto);
-    return await this.playersRepository.save(player);
+    return saveEntity(this.playersRepository, player);
   }
 
   async getPlayers(): Promise<Player[]> {
@@ -19,13 +21,7 @@ export class PlayersService {
   }
 
   async getPlayerById(id: string): Promise<Player> {
-    const player: Player = await this.playersRepository.findOneBy({ id });
-
-    if (!player) {
-      throw new NotFoundException(`Player with id: ${id} was not found`);
-    }
-
-    return player;
+    return findOneOrThrow(this.playersRepository, { id }, `Player with id: ${id} was not found`);
   }
 
   async updatePlayer(id: string, updatePlayerDto: UpdatePlayerDto): Promise<Player> {

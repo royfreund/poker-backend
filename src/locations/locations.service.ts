@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Location } from './entities/location.entity';
 import { Repository } from 'typeorm';
+import { saveEntity } from '../utils/save-entity';
+import { findOneOrThrow } from '../utils/find-one-or-throw';
 
 @Injectable()
 export class LocationsService {
@@ -11,7 +13,7 @@ export class LocationsService {
 
   async createLocation(createLocationDto: CreateLocationDto): Promise<Location> {
     const location: Location = this.locationRepository.create(createLocationDto);
-    return await this.locationRepository.save(location);
+    return await saveEntity(this.locationRepository, location);
   }
 
   async getLocations(): Promise<Location[]> {
@@ -19,13 +21,7 @@ export class LocationsService {
   }
 
   async getLocationById(id: string): Promise<Location> {
-    const location: Location = await this.locationRepository.findOneBy({ id });
-
-    if (!location) {
-      throw new NotFoundException(`Location with id: ${id} was not found`);
-    }
-
-    return location;
+    return findOneOrThrow(this.locationRepository, { id }, `Location with id: ${id} was not found`);
   }
 
   async updateLocation(id: string, updateLocationDto: UpdateLocationDto): Promise<Location> {
