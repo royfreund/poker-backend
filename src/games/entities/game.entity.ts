@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Location } from '../../locations/entities/location.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Game {
@@ -7,6 +8,7 @@ export class Game {
   id: string;
 
   @ManyToOne(() => Location, (location: Location) => location.games, { eager: false, nullable: false })
+  @Exclude({ toPlainOnly: true })
   location: Location;
 
   @Column()
