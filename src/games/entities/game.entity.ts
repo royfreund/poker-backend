@@ -7,8 +7,8 @@ export class Game {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Location, (location: Location) => location.games, { eager: false, nullable: false })
   @Exclude({ toPlainOnly: true })
+  @ManyToOne(() => Location, (location: Location) => location.games, { eager: false, nullable: false })
   location: Location;
 
   @Column()
